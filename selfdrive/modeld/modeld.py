@@ -3,7 +3,9 @@ import os
 from openpilot.system.hardware import TICI
 from tinygrad.tensor import Tensor
 from tinygrad.dtype import dtypes
-if TICI:
+if "USBGPU" in os.environ:
+  os.environ['AMD'] = '1'
+elif TICI:
   from openpilot.selfdrive.modeld.runners.tinygrad_helpers import qcom_tensor_from_opencl_address
   os.environ['QCOM'] = '1'
 else:
