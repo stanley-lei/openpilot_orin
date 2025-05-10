@@ -152,7 +152,7 @@ class ModelState:
     imgs_cl = {'input_imgs': self.frames['input_imgs'].prepare(buf, transform.flatten()),
                'big_input_imgs': self.frames['big_input_imgs'].prepare(wbuf, transform_wide.flatten())}
 
-    if TICI:
+    if TICI and "USBGPU" not in os.environ:
       # The imgs tensors are backed by opencl memory, only need init once
       for key in imgs_cl:
         if key not in self.vision_inputs:
@@ -195,6 +195,7 @@ def main(demo=False):
   setproctitle(PROCESS_NAME)
   config_realtime_process(7, 54)
 
+  st = time.monotonic()
   cloudlog.warning("setting up CL context")
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
