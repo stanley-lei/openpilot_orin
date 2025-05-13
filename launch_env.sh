@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+export ZMQ=1
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
@@ -14,4 +15,6 @@ if [ -z "$PASSIVE" ]; then
   export PASSIVE="1"
 fi
 
-export STAGING_ROOT="/data/safe_staging"
+#export STAGING_ROOT="/data/safe_staging"
+export STAGING_ROOT="/home/nvidia/workspace/safe_staging"
+export PYTHONPATH=`pwd`:$PYTHONPATH

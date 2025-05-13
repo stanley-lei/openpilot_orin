@@ -8,6 +8,8 @@ import numpy as np
 TICI = os.path.isfile('/TICI')
 AGNOS = TICI
 
+ORIN = True
+
 Decider('MD5-timestamp')
 
 AddOption('--test',
@@ -54,22 +56,30 @@ AddOption('--no-thneed',
           help='avoid using thneed')
 
 real_arch = arch = subprocess.check_output(["uname", "-m"], encoding='utf8').rstrip()
+acados_arch = arch
+
 if platform.system() == "Darwin":
   arch = "Darwin"
+  acados_arch = arch
 
 if arch == "aarch64" and AGNOS:
   arch = "larch64"
+  acados_arch = arch
+
+if arch == "aarch64" and ORIN:
+   arch = "oarch64"
+   acados_arch = "larch64"
 
 USE_WEBCAM = os.getenv("USE_WEBCAM") is not None
 
 lenv = {
   "PATH": os.environ['PATH'],
-  "LD_LIBRARY_PATH": [Dir(f"#third_party/acados/{arch}/lib").abspath],
+  "LD_LIBRARY_PATH": [Dir(f"#third_party/acados/{acados_arch}/lib").abspath],
   "PYTHONPATH": Dir("#").abspath + ":" + Dir("#pyextra/").abspath,
 
   "ACADOS_SOURCE_DIR": Dir("#third_party/acados/include/acados").abspath,
   "ACADOS_PYTHON_INTERFACE_PATH": Dir("#pyextra/acados_template").abspath,
-  "TERA_PATH": Dir("#").abspath + f"/third_party/acados/{arch}/t_renderer",
+  "TERA_PATH": Dir("#").abspath + f"/third_party/acados/{acados_arch}/t_renderer",
 }
 
 rpath = lenv["LD_LIBRARY_PATH"].copy()
@@ -85,7 +95,7 @@ if arch == "larch64":
     "/usr/local/lib",
     "/usr/lib",
     "/system/vendor/lib64",
-    f"#third_party/acados/{arch}/lib",
+    f"#third_party/acados/{acados_arch}/lib",
   ]
 
   libpath += [
@@ -99,6 +109,37 @@ if arch == "larch64":
   cflags = ["-DQCOM2", "-mcpu=cortex-a57"]
   cxxflags = ["-DQCOM2", "-mcpu=cortex-a57"]
   rpath += ["/usr/local/lib"]
+elif arch == "oarch64":
+  cpppath = [
+    "#third_party/opencl/include",
+  ]
+
+  libpath = [
+    "/usr/lib",
+    "/usr/local/lib",
+    "/usr/local/cuda/targets/aarch64-linux/lib",
+    "/usr/local/cuda/lib64",
+    "/usr/lib/aarch64-linux-gnu",
+  ]
+
+  libpath += [
+    f"#third_party/acados/{acados_arch}/lib",
+    "#third_party/snpe/larch64",
+    "#third_party/libyuv/larch64/lib",
+  ]
+
+  cpppath += [
+  ]
+
+  cflags = ["-march=armv8.2-a"]
+  cxxflags = ["-march=armv8.2-a"]
+  rpath += [
+    "/usr/lib",
+    "/usr/local/lib",
+    "/usr/local/cuda/targets/aarch64-linux/lib",
+    "/usr/local/cuda/lib64",
+    "/usr/lib/aarch64-linux-gnu",
+]
 else:
   cflags = []
   cxxflags = []
@@ -296,12 +337,12 @@ else:
   qt_dirs += [f"/usr/include/{real_arch}-linux-gnu/qt5/Qt{m}" for m in qt_modules]
 
   qt_libs = [f"Qt5{m}" for m in qt_modules]
-  if arch == "larch64":
+  if arch in ["larch64", "oarch64"]:
     qt_libs += ["GLESv2", "wayland-client"]
   elif arch != "Darwin":
     qt_libs += ["GL"]
 
-qt_env.Tool('qt')
+qt_env.Tool('qt3')
 qt_env['CPPPATH'] += qt_dirs + ["#selfdrive/ui/qt/"]
 qt_flags = [
   "-D_REENTRANT",

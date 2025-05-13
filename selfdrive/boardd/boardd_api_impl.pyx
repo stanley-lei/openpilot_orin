@@ -4,11 +4,13 @@ from libcpp.vector cimport vector
 from libcpp.string cimport string
 from libcpp cimport bool
 
-cdef struct can_frame:
-  long address
-  string dat
-  long busTime
-  long src
+# Include the panda.h header to use its can_frame struct
+cdef extern from "panda.h":
+    cdef struct can_frame:
+      long address
+      string dat
+      long busTime
+      long src
 
 cdef extern void can_list_to_can_capnp_cpp(const vector[can_frame] &can_list, string &out, bool sendCan, bool valid)
 
