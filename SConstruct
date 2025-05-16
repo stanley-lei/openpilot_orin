@@ -8,7 +8,7 @@ import numpy as np
 TICI = os.path.isfile('/TICI')
 AGNOS = TICI
 
-ORIN = True
+ORIN = os.getenv("ORIN", "0").lower() in ["1", "true", "yes", "y"]
 
 Decider('MD5-timestamp')
 

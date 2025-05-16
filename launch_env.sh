@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
+export ORIN=1
 export ZMQ=1
 export POCL_DEVICES=cuda
 export OMP_NUM_THREADS=1

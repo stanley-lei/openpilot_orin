@@ -6,6 +6,9 @@
 #if QCOM2
 #include "system/hardware/tici/hardware.h"
 #define Hardware HardwareTici
+#elif ORIN
+#include "system/hardware/orin/hardware.h"
+#define Hardware HardwareOrin
 #else
 class HardwarePC : public HardwareNone {
 public:

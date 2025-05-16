@@ -13,6 +13,16 @@ if arch == "larch64":
       'imgproc/utils.cc',
       cameras,
     ], LIBS=libs)
+elif arch == "oarch64":
+  libs += ['atomic']
+  cameras = ['cameras/camera_orin.cc']
+
+  env.Program('camerad', [
+      'main.cc',
+      'cameras/camera_common.cc',
+      'imgproc/utils.cc',
+      cameras,
+    ], LIBS=libs)
 
 if GetOption("test"):
   env.Program('test/ae_gray_test', [
